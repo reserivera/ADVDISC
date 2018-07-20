@@ -8,7 +8,7 @@ public class Vector {
 
 
 	//  The usage of an Array/List-like structure to store the Vector data.
-	private ArrayList<Integer> data;
+	private ArrayList<Double> data;
 	//  The usage of an immutable Integer variable to hold a value for Vector dimension.
 	private int dimension;
 
@@ -24,7 +24,12 @@ public class Vector {
 	//            Constructor definition to be used: Vector (double[ ] array, int dimension)
 
 	public Vector(double[] array, int dimension) {
-		
+		data = new ArrayList<>(); // not sure if need pa?
+		this.dimension = dimension;
+
+		for(int i = 0; i < array.length; i++) {
+			data.add(array[i]);
+		}
 	}
 
 	//    An implementation of functions for vector scaling and vector addition. (10 points)
@@ -33,7 +38,13 @@ public class Vector {
 	//  Usage example: Assuming a Vector v and int b exists, v.scale(b) should scale the elements of v by b and return the scaled vector v. The elements inside v must be changed and be correctly scaled by b.
 
 	public Vector scale(int scalar) {
-		Vector v = new Vector(1);
+		double[] array = new double[data.size()];
+
+		for(int i = 0; i < data.size(); i++) {
+			array[i] = data.get(i) * scalar;
+		}
+
+		Vector v = new Vector(array, dimension); // changed from new Vector(1);
 		return v;
 	}
 	//        A proper implementation of a function for vector addition. Errors for size mismatches when adding vectors must also be handled.
@@ -67,8 +78,20 @@ public class Vector {
 
 		return 0;
 	}
-	
-		 
 
+	// for testing
+	public Double getDataAtIndex(int i) {
+		return data.get(i);
+	}
 
+	// for testing (to be removed)
+	public static void main(String[] args) {
+		double[] vector = new double[]{3.5, 4, 5, 6};
+		Vector v = new Vector(vector, 1);
+		Vector scaled = v.scale(3);
+
+		for(int i = 0; i < vector.length; i++) {
+			System.out.print(scaled.getDataAtIndex(i) + " ");
+		}
+	}
 }
