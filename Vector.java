@@ -38,13 +38,13 @@ public class Vector {
 	//  Usage example: Assuming a Vector v and int b exists, v.scale(b) should scale the elements of v by b and return the scaled vector v. The elements inside v must be changed and be correctly scaled by b.
 
 	public Vector scale(int scalar) {
-		double[] array = new double[data.size()];
+		double[] scaled = new double[data.size()];
 
 		for(int i = 0; i < data.size(); i++) {
-			array[i] = data.get(i) * scalar;
+			scaled[i] = data.get(i) * scalar;
 		}
 
-		Vector v = new Vector(array, dimension); // changed from new Vector(1);
+		Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
 		return v;
 	}
 	//        A proper implementation of a function for vector addition. Errors for size mismatches when adding vectors must also be handled.
@@ -52,7 +52,18 @@ public class Vector {
 	//            Usage example: Assuming both Vector v and w exist, v.add(w) should return the vector sum between v and w. The elements inside v must be changed and be a correct result of the operation of Vector addition between v and w.
 
 	public Vector add(Vector addend) {
-		Vector v = new Vector(1);
+		if(data.size() != addend.getVector().size()) {
+			// error handling
+			return null;
+		} 
+
+		double[] added = new double[data.size()];
+
+		for(int i = 0; i < data.size(); i++) {
+			added[i] = data.get(i) + addend.getDataAtIndex(i);
+		}
+
+		Vector v = new Vector(added, dimension); // changed from new Vector(1);
 		return v;
 	}
 	//    An implementation of a function that performs Gauss-Jordan Elimination on a given set of vectors. (30 points)
@@ -63,7 +74,6 @@ public class Vector {
 	//        Usage example: Given a list of vectors vecList, an integer dim, and a Vector c, Vector.Gauss_Jordan (vecList, dim, c) should return a Vector containing the solution to the corresponding system of linear equations. Ex. [x y z w] = [2 1 3 5]
 	
 	public Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
-	
 		Vector v = new Vector(1);
 		return v;
 	}
@@ -80,6 +90,11 @@ public class Vector {
 	}
 
 	// for testing
+	public ArrayList<Double> getVector() {
+		return data;
+	}
+
+	// for testing
 	public Double getDataAtIndex(int i) {
 		return data.get(i);
 	}
@@ -87,11 +102,14 @@ public class Vector {
 	// for testing (to be removed)
 	public static void main(String[] args) {
 		double[] vector = new double[]{3.5, 4, 5, 6};
+		double[] vector2 = new double[]{1, 4.3, 10, 13};
 		Vector v = new Vector(vector, 1);
-		Vector scaled = v.scale(3);
+		Vector v2 = new Vector(vector2, 1);
+		Vector added = v.add(v2);
+		// Vector scaled = v.scale(3);
 
-		for(int i = 0; i < vector.length; i++) {
-			System.out.print(scaled.getDataAtIndex(i) + " ");
+		for(int i = 0; i < added.getVector().size(); i++) {
+			System.out.print(added.getDataAtIndex(i) + " ");
 		}
 	}
 }
