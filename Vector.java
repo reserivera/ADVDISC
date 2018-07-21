@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 public class Vector {
 
@@ -16,7 +17,7 @@ public class Vector {
 	//      Constructor definition to be used: Vector (int dimension)
 
 	public Vector(int dimension) {
-		data = new ArrayList<>(dimension);
+		data = new ArrayList<>(Collections.nCopies(dimension, 0.0));
 		this.dimension = dimension;
 	}
 
