@@ -10,13 +10,13 @@ public class Vector {
 	//  The usage of an Array/List-like structure to store the Vector data.
 	private ArrayList<Double> data;
 	//  The usage of an immutable Integer variable to hold a value for Vector dimension.
-	private int dimension;
+	private final int dimension;
 
 	//  A proper implementation of a default constructor that initializes the vector as a zero vector of a given dimension.
 	//      Constructor definition to be used: Vector (int dimension)
 
 	public Vector(int dimension) {
-		data = new ArrayList<>();
+		data = new ArrayList<>(dimension);
 		this.dimension = dimension;
 	}
 
@@ -24,7 +24,7 @@ public class Vector {
 	//            Constructor definition to be used: Vector (double[ ] array, int dimension)
 
 	public Vector(double[] array, int dimension) {
-		data = new ArrayList<>(); // not sure if need pa?
+		data = new ArrayList<>(dimension); // not sure if need pa?
 		this.dimension = dimension;
 
 		for(int i = 0; i < array.length; i++) {
@@ -41,30 +41,29 @@ public class Vector {
 		double[] scaled = new double[data.size()];
 
 		for(int i = 0; i < data.size(); i++) {
-			scaled[i] = data.get(i) * scalar;
+			//scaled[i] = data.get(i) * scalar;
+			data.set(i,data.get(i) * scalar);
 		}
 
-		Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
-		return v;
+		//Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
+		return this;
 	}
 	//        A proper implementation of a function for vector addition. Errors for size mismatches when adding vectors must also be handled.
 	//            Function header to be used: Vector add (Vector addend)
 	//            Usage example: Assuming both Vector v and w exist, v.add(w) should return the vector sum between v and w. The elements inside v must be changed and be a correct result of the operation of Vector addition between v and w.
 
 	public Vector add(Vector addend) {
-		if(data.size() != addend.getVector().size()) {
+		if(data.size() != addend.getSize()) {
 			// error handling
 			return null;
 		} 
 
-		double[] added = new double[data.size()];
 
 		for(int i = 0; i < data.size(); i++) {
-			added[i] = data.get(i) + addend.getDataAtIndex(i);
+			data.set(i,data.get(i) + addend.getDataAtIndex(i));
 		}
 
-		Vector v = new Vector(added, dimension); // changed from new Vector(1);
-		return v;
+		return this;
 	}
 	//    An implementation of a function that performs Gauss-Jordan Elimination on a given set of vectors. (30 points)
 	
@@ -94,6 +93,10 @@ public class Vector {
 		return data;
 	}
 
+	public int getSize() {
+		return data.size();
+	}
+
 	// for testing
 	public Double getDataAtIndex(int i) {
 		return data.get(i);
@@ -103,12 +106,12 @@ public class Vector {
 	public static void main(String[] args) {
 		double[] vector = new double[]{3.5, 4, 5, 6};
 		double[] vector2 = new double[]{1, 4.3, 10, 13};
-		Vector v = new Vector(vector, 1);
+		Vector v = new Vector(vector, 4);
 		Vector v2 = new Vector(vector2, 1);
 		Vector added = v.add(v2);
-		// Vector scaled = v.scale(3);
+		//Vector scaled = v.scale(3);
 
-		for(int i = 0; i < added.getVector().size(); i++) {
+		for(int i = 0; i < added.getSize(); i++) {
 			System.out.print(added.getDataAtIndex(i) + " ");
 		}
 	}
