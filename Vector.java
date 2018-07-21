@@ -24,12 +24,18 @@ public class Vector {
 	//            Constructor definition to be used: Vector (double[ ] array, int dimension)
 
 	public Vector(double[] array, int dimension) {
-		data = new ArrayList<>(dimension); // not sure if need pa?
+		this.data = new ArrayList<>(dimension); // not sure if need pa?
 		this.dimension = dimension;
 
 		for(int i = 0; i < array.length; i++) {
-			data.add(array[i]);
+			this.data.add(array[i]);
 		}
+	}
+
+	//copying
+	public Vector(Vector newVector) {
+		this.data = new ArrayList<>(newVector.getVector());
+		this.dimension =  data.size();
 	}
 
 	//    An implementation of functions for vector scaling and vector addition. (10 points)
@@ -43,6 +49,18 @@ public class Vector {
 		for(int i = 0; i < data.size(); i++) {
 			//scaled[i] = data.get(i) * scalar;
 			data.set(i,data.get(i) * scalar);
+		}
+
+		//Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
+		return this;
+	}
+
+	public Vector reduce(int scalar) {
+		double[] scaled = new double[data.size()];
+
+		for(int i = 0; i < data.size(); i++) {
+			//scaled[i] = data.get(i) * scalar;
+			data.set(i,data.get(i) / scalar);
 		}
 
 		//Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
@@ -76,6 +94,48 @@ public class Vector {
 		Vector v = new Vector(1);
 		return v;
 	}
+
+	public static List<Vector> swap(List<Vector> vectors){
+		int currInd = 0, currZero = 0;
+		boolean switched = true;
+		while(currInd < vectors.size() && switched && currZero < vectors.get(0).getSize()) {
+
+			switched = false;
+			for(int i = currInd; i < vectors.size(); i++) {
+				int j = currInd;
+				if(vectors.get(i).getDataAtIndex(currZero) > 0) {
+					
+					if(i != j) {
+						Vector v = vectors.get(j);
+						vectors.set(j, vectors.get(i));
+						vectors.set(i, v);
+					}
+
+					j++;
+					currInd = j;
+					switched = true;
+				}
+			}
+			currZero++;
+		}
+		return vectors;
+	}
+
+	public static List<Vector> rowEchelon(List<Vector> vectors){
+		for(int i = 0; i < vectors.size()-1; i++) {
+			Vector base = new Vector(vectors.get(i));
+			for(int j = i+1; j < vectors.size(); j++) {
+				if(vectors.get(j).getDataAtIndex(i) != 0){
+					int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
+					vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
+				}
+			}
+		}
+		for(int i = 0; i < vectors.size(); i++)
+			if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
+				vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
+		return vectors;
+	}
 	
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
 	//        The function must be static-like in nature, and must be callable from the Vector class. See usage example for more details.
@@ -104,15 +164,38 @@ public class Vector {
 
 	// for testing (to be removed)
 	public static void main(String[] args) {
-		double[] vector = new double[]{3.5, 4, 5, 6};
-		double[] vector2 = new double[]{1, 4.3, 10, 13};
-		Vector v = new Vector(vector, 4);
-		Vector v2 = new Vector(vector2, 1);
-		Vector added = v.add(v2);
+		// double[] vector = new double[]{0, 0, 0, 6, 0};
+		// double[] vector2 = new double[]{0, 0, 10, 13, 1};
+		// double[] vector4 = new double[]{4, 4.3, 10, 13, 9};
+		// double[] vector5 = new double[]{4, 0, 10, 13, 7};
+		// double[] vector3 = new double[]{0, 5, 10, 13, 3};
+		double[] vector = new double[]{1, 1, 1};
+		double[] vector2 = new double[]{1, 2, 3};
+		double[] vector3 = new double[]{2, 3, 4};
+		Vector v = new Vector(vector, 3);
+		Vector v2 = new Vector(vector2, 3);
+		Vector v3 = new Vector(vector3, 3);
+		// Vector v3 = new Vector(vector3, 5);
+		// Vector v4 = new Vector(vector4, 5);
+		// Vector v5 = new Vector(vector5, 5);
+		List<Vector> list = new ArrayList<>(3);
+		list.add(v2);
+		list.add(v);
+		list.add(v3);
+		// list.add(v4);
+		// list.add(v5);
+		// list.add(v3);
 		//Vector scaled = v.scale(3);
-
-		for(int i = 0; i < added.getSize(); i++) {
-			System.out.print(added.getDataAtIndex(i) + " ");
+		List<Vector> newList = Vector.swap(list);
+		newList = Vector.rowEchelon(newList);
+		for(int j = 0; j < newList.size(); j ++) {
+			for(int i = 0; i < newList.get(j).getSize(); i++) {
+				System.out.printf("%.5f ",newList.get(j).getDataAtIndex(i));
+			}
+			System.out.println();
 		}
+		// for(int i = 0; i < added.getSize(); i++) {
+		// 	System.out.print(added.getDataAtIndex(i) + " ");
+		// }
 	}
 }
