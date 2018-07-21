@@ -92,11 +92,13 @@ public class Vector {
 	//        Usage example: Given a list of vectors vecList, an integer dim, and a Vector c, Vector.Gauss_Jordan (vecList, dim, c) should return a Vector containing the solution to the corresponding system of linear equations. Ex. [x y z w] = [2 1 3 5]
 	
 	public Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
-		Vector v = new Vector(1);
-		return v;
+		Vector.swap(vectors);
+		Vector.rowEchelon(vectors);
+		Vector.reducedRowEchelon(vectors);
+		return new Vector(dimension);
 	}
 
-	public static List<Vector> swap(List<Vector> vectors){
+	public static void swap(List<Vector> vectors){
 		int currInd = 0, currZero = 0;
 		boolean switched = true;
 		while(currInd < vectors.size() && switched && currZero < vectors.get(0).getSize()) {
@@ -119,10 +121,10 @@ public class Vector {
 			}
 			currZero++;
 		}
-		return vectors;
+		//return vectors;
 	}
 
-	public static List<Vector> rowEchelon(List<Vector> vectors){
+	public static void rowEchelon(List<Vector> vectors){
 		for(int i = 0; i < vectors.size()-1; i++) {
 			Vector base = new Vector(vectors.get(i));
 			for(int j = i+1; j < vectors.size(); j++) {
@@ -132,10 +134,28 @@ public class Vector {
 				}
 			}
 		}
+		// for(int i = 0; i < vectors.size(); i++)
+		// 	if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
+		// 		vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
+		//return vectors;
+	}
+
+	public static void reducedRowEchelon(List<Vector> vectors){
+		for(int i = vectors.size()-1; i > 0; i--) {
+			Vector base = new Vector(vectors.get(i));
+			if(base.getDataAtIndex(i) != 0) {
+				for(int j = i-1; j >= 0; j--) {
+					if(vectors.get(j).getDataAtIndex(i) != 0){
+						int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
+						vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
+					}
+				}
+			}
+		}
 		for(int i = 0; i < vectors.size(); i++)
 			if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
 				vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
-		return vectors;
+		//return vectors;
 	}
 	
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
@@ -170,28 +190,31 @@ public class Vector {
 		// double[] vector4 = new double[]{4, 4.3, 10, 13, 9};
 		// double[] vector5 = new double[]{4, 0, 10, 13, 7};
 		// double[] vector3 = new double[]{0, 5, 10, 13, 3};
-		double[] vector = new double[]{1, 1, 1};
-		double[] vector2 = new double[]{1, 2, 3};
-		double[] vector3 = new double[]{2, 3, 4};
-		Vector v = new Vector(vector, 3);
-		Vector v2 = new Vector(vector2, 3);
-		Vector v3 = new Vector(vector3, 3);
+		double[] vector = new double[]{1, 1, 2, 0};
+		double[] vector2 = new double[]{2, -1, 0, 1};
+		double[] vector3 = new double[]{1, -1, -1, -2};
+		double[] vector4 = new double[]{2, -1, 2,-1};
+		Vector v = new Vector(vector, 4);
+		Vector v2 = new Vector(vector2, 4);
+		Vector v3 = new Vector(vector3, 4);
+		Vector v4 = new Vector(vector4, 4);
 		// Vector v3 = new Vector(vector3, 5);
 		// Vector v4 = new Vector(vector4, 5);
 		// Vector v5 = new Vector(vector5, 5);
-		List<Vector> list = new ArrayList<>(3);
+		List<Vector> list = new ArrayList<>(4);
 		list.add(v2);
 		list.add(v);
 		list.add(v3);
-		// list.add(v4);
+		list.add(v4);
 		// list.add(v5);
 		// list.add(v3);
 		//Vector scaled = v.scale(3);
-		List<Vector> newList = Vector.swap(list);
-		newList = Vector.rowEchelon(newList);
-		for(int j = 0; j < newList.size(); j ++) {
-			for(int i = 0; i < newList.get(j).getSize(); i++) {
-				System.out.printf("%.5f ",newList.get(j).getDataAtIndex(i));
+		Vector.swap(list);
+		Vector.rowEchelon(list);
+		Vector.reducedRowEchelon(list);
+		for(int j = 0; j < list.size(); j ++) {
+			for(int i = 0; i < list.get(j).getSize(); i++) {
+				System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
 			}
 			System.out.println();
 		}
