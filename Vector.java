@@ -3,7 +3,10 @@ import java.util.List;
 import java.util.Collections;
 
 public class Vector {
-
+	static int min(int a, int b) { 
+        return a < b ? a : b; 
+         
+    }
 
 	//A proper implementation of a vector function via the usage of a List-like data structure. (5 points)
 
@@ -45,26 +48,18 @@ public class Vector {
 	//  Usage example: Assuming a Vector v and int b exists, v.scale(b) should scale the elements of v by b and return the scaled vector v. The elements inside v must be changed and be correctly scaled by b.
 
 	public Vector scale(int scalar) {
-		double[] scaled = new double[data.size()];
 
 		for(int i = 0; i < data.size(); i++) {
-			//scaled[i] = data.get(i) * scalar;
 			data.set(i,data.get(i) * scalar);
 		}
-
-		//Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
 		return this;
 	}
 
 	public Vector reduce(int scalar) {
-		double[] scaled = new double[data.size()];
 
 		for(int i = 0; i < data.size(); i++) {
-			//scaled[i] = data.get(i) * scalar;
 			data.set(i,data.get(i) / scalar);
 		}
-
-		//Vector v = new Vector(scaled, dimension); // changed from new Vector(1);
 		return this;
 	}
 	//        A proper implementation of a function for vector addition. Errors for size mismatches when adding vectors must also be handled.
@@ -91,17 +86,17 @@ public class Vector {
 	//        The function must be a proper implementation of Gauss-Jordan Elimination, which reduces the given list of vectors into unit vectors via row operations.
 	//        Usage example: Given a list of vectors vecList, an integer dim, and a Vector c, Vector.Gauss_Jordan (vecList, dim, c) should return a Vector containing the solution to the corresponding system of linear equations. Ex. [x y z w] = [2 1 3 5]
 	
-	public Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
-		Vector.swap(vectors);
-		Vector.rowEchelon(vectors);
-		Vector.reducedRowEchelon(vectors);
-		return new Vector(dimension);
+	public static Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
+		Vector.swap(vectors, dimension, constants);
+		Vector.rowEchelon(vectors, dimension, constants);
+		Vector.reducedRowEchelon(vectors,dimension, constants);
+		return constants;
 	}
 
-	public static void swap(List<Vector> vectors){
+	public static void swap(List<Vector> vectors, int dimension, Vector constants){
 		int currInd = 0, currZero = 0;
 		boolean switched = true;
-		while(currInd < vectors.size() && switched && currZero < vectors.get(0).getSize()) {
+		while(currInd < vectors.size() && switched && currZero < dimension) {
 
 			switched = false;
 			for(int i = currInd; i < vectors.size(); i++) {
@@ -112,6 +107,7 @@ public class Vector {
 						Vector v = vectors.get(j);
 						vectors.set(j, vectors.get(i));
 						vectors.set(i, v);
+						// add switch for constants
 					}
 
 					j++;
@@ -124,13 +120,14 @@ public class Vector {
 		//return vectors;
 	}
 
-	public static void rowEchelon(List<Vector> vectors){
-		for(int i = 0; i < vectors.size()-1; i++) {
+	public static void rowEchelon(List<Vector> vectors, int dimension, Vector constants){
+		for(int i = 0; i < vectors.size()-1 && i < dimension; i++) {
 			Vector base = new Vector(vectors.get(i));
-			for(int j = i+1; j < vectors.size(); j++) {
+			for(int j = i+1; j < vectors.size() && j < dimension; j++) {
 				if(vectors.get(j).getDataAtIndex(i) != 0){
 					int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
 					vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
+					//add constant part
 				}
 			}
 		}
@@ -140,21 +137,24 @@ public class Vector {
 		//return vectors;
 	}
 
-	public static void reducedRowEchelon(List<Vector> vectors){
-		for(int i = vectors.size()-1; i > 0; i--) {
+	public static void reducedRowEchelon(List<Vector> vectors, int dimension, Vector constants){
+		for(int i = min(vectors.size()-1,dimension-1); i > 0; i--) {
 			Vector base = new Vector(vectors.get(i));
 			if(base.getDataAtIndex(i) != 0) {
 				for(int j = i-1; j >= 0; j--) {
 					if(vectors.get(j).getDataAtIndex(i) != 0){
 						int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
 						vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
+						// add constant part
 					}
 				}
 			}
 		}
 		for(int i = 0; i < vectors.size(); i++)
-			if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
+			if(vectors.get(i).getDataAtIndex(i).intValue() != 0){
 				vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
+				// add constant part
+			}
 		//return vectors;
 	}
 	
@@ -162,26 +162,24 @@ public class Vector {
 	//        The function must be static-like in nature, and must be callable from the Vector class. See usage example for more details.
 	//        Function header to be used: int span (List<Vector> vectors, int dimension)
 	
-	public int span(List<Vector> vectors, int dimension) {
+	public static int span(List<Vector> vectors, int dimension) {
 		//  The function must call the Gauss_Jordan function within it; i.e. the calculation for span must include Gauss-Jordan Elimination.
 		//        Usage example: Given a list of Vectors vecList, and an integer dim denoting the dimension of a vector inside vecList, Vector.span(vecList, dim) should return an integer variable containing the span of the set of vectors.
 		int span = 0;
-		double[] constants = new double[vectors.size()];
+
+		Vector zeroConstants = new Vector(vectors.size());
+		Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
 
 		for(int i = 0; i < vectors.size(); i++) {
-			constants[i] = 0;	
-		}
-
-		Vector zeroConstants = new Vector(constants, constants.length);
-		Vector gaussJordan = this.Gauss_Jordan(vectors, dimension, zeroConstants);
-
-		for(int i = 0; i < gaussJordan.getSize(); i++) {
-			if(gaussJordan.getDataAtIndex(i) != null) {
-				span++;
+			for(int j = i; j < dimension; j++){
+				if(vectors.get(i).getDataAtIndex(j) != 0) {
+					span++;
+					break;
+				}
 			}
 		}
 		
-		return 0;
+		return span;
 	}
 
 	// for testing
@@ -205,18 +203,19 @@ public class Vector {
 		// double[] vector4 = new double[]{4, 4.3, 10, 13, 9};
 		// double[] vector5 = new double[]{4, 0, 10, 13, 7};
 		// double[] vector3 = new double[]{0, 5, 10, 13, 3};
+		int dimension = 4;
 		double[] vector = new double[]{1, 1, 2, 0};
 		double[] vector2 = new double[]{2, -1, 0, 1};
-		double[] vector3 = new double[]{1, -1, -1, -2};
+		double[] vector3 = new double[]{1, -1, 0, -2};
 		double[] vector4 = new double[]{2, -1, 2,-1};
-		Vector v = new Vector(vector, 4);
-		Vector v2 = new Vector(vector2, 4);
-		Vector v3 = new Vector(vector3, 4);
-		Vector v4 = new Vector(vector4, 4);
+		Vector v = new Vector(vector, dimension);
+		Vector v2 = new Vector(vector2, dimension);
+		Vector v3 = new Vector(vector3, dimension);
+		Vector v4 = new Vector(vector4, dimension);
 		// Vector v3 = new Vector(vector3, 5);
 		// Vector v4 = new Vector(vector4, 5);
 		// Vector v5 = new Vector(vector5, 5);
-		List<Vector> list = new ArrayList<>(4);
+		List<Vector> list = new ArrayList<>(dimension);
 		list.add(v2);
 		list.add(v);
 		list.add(v3);
@@ -224,9 +223,8 @@ public class Vector {
 		// list.add(v5);
 		// list.add(v3);
 		//Vector scaled = v.scale(3);
-		Vector.swap(list);
-		Vector.rowEchelon(list);
-		Vector.reducedRowEchelon(list);
+		//Vector.Gauss_Jordan(list, dimension, new Vector(dimension));
+		Vector.span(list, dimension);
 		for(int j = 0; j < list.size(); j ++) {
 			for(int i = 0; i < list.get(j).getSize(); i++) {
 				System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
