@@ -108,6 +108,9 @@ public class Vector {
 						vectors.set(j, vectors.get(i));
 						vectors.set(i, v);
 						// add switch for constants
+						double temp = constants.getDataAtIndex(j);
+						constants.setValue(j, constants.getDataAtIndex(i));
+						constants.setValue(i, temp);
 					}
 
 					j++;
@@ -122,14 +125,27 @@ public class Vector {
 
 	public static void rowEchelon(List<Vector> vectors, int dimension, Vector constants){
 		for(int i = 0; i < vectors.size()-1 && i < dimension; i++) {
-			Vector base = new Vector(vectors.get(i));
 			for(int j = i+1; j < vectors.size() && j < dimension; j++) {
 				if(vectors.get(j).getDataAtIndex(i) != 0){
+
+					Vector base = new Vector(vectors.get(i));
 					int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
+
+					double first = constants.getDataAtIndex(j)*base.getDataAtIndex(i),
+					second = constants.getDataAtIndex(i)*factor;
+
 					vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
 					//add constant part
+					constants.setValue(j,first+second);
+
 				}
 			}
+		}
+		int reduceFactor = vectors.get(dimension-1).getDataAtIndex(dimension-1).intValue();
+		if(reduceFactor != 0){
+			vectors.get(dimension-1).reduce(reduceFactor);
+			// add constant part
+			constants.setValue(dimension-1,constants.getDataAtIndex(dimension-1)/reduceFactor);
 		}
 		// for(int i = 0; i < vectors.size(); i++)
 		// 	if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
@@ -139,22 +155,33 @@ public class Vector {
 
 	public static void reducedRowEchelon(List<Vector> vectors, int dimension, Vector constants){
 		for(int i = min(vectors.size()-1,dimension-1); i > 0; i--) {
-			Vector base = new Vector(vectors.get(i));
-			if(base.getDataAtIndex(i) != 0) {
+			
+			if(vectors.get(i).getDataAtIndex(i) != 0) {
 				for(int j = i-1; j >= 0; j--) {
 					if(vectors.get(j).getDataAtIndex(i) != 0){
+						Vector base = new Vector(vectors.get(i));
 						int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
+
+						double first = constants.getDataAtIndex(j)*base.getDataAtIndex(i),
+						second = constants.getDataAtIndex(i)*factor;
+
 						vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
 						// add constant part
+						
+						constants.setValue(j,first+second);
 					}
 				}
 			}
 		}
-		for(int i = 0; i < vectors.size(); i++)
-			if(vectors.get(i).getDataAtIndex(i).intValue() != 0){
-				vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
+		for(int i = 0; i < vectors.size(); i++) {
+
+			int reduceFactor = vectors.get(i).getDataAtIndex(i).intValue();
+			if(reduceFactor != 0){
+				vectors.get(i).reduce(reduceFactor);
 				// add constant part
+				constants.setValue(i,constants.getDataAtIndex(i)/reduceFactor);
 			}
+		}
 		//return vectors;
 	}
 	
@@ -191,6 +218,10 @@ public class Vector {
 		return data.size();
 	}
 
+	public void setValue(int index, double newValue) {
+		data.set(index, newValue);
+	}
+
 	// for testing
 	public Double getDataAtIndex(int i) {
 		return data.get(i);
@@ -206,24 +237,34 @@ public class Vector {
 		int dimension = 4;
 		double[] vector = new double[]{1, 1, 2, 0};
 		double[] vector2 = new double[]{2, -1, 0, 1};
-		double[] vector3 = new double[]{1, -1, 0, -2};
+		double[] vector3 = new double[]{1, -1, -1, -2};
 		double[] vector4 = new double[]{2, -1, 2,-1};
+		double[] cons = new double[]{1, -2, 4,0};
 		Vector v = new Vector(vector, dimension);
 		Vector v2 = new Vector(vector2, dimension);
 		Vector v3 = new Vector(vector3, dimension);
 		Vector v4 = new Vector(vector4, dimension);
-		// Vector v3 = new Vector(vector3, 5);
-		// Vector v4 = new Vector(vector4, 5);
-		// Vector v5 = new Vector(vector5, 5);
+		Vector constants = new Vector(cons, dimension);
+
 		List<Vector> list = new ArrayList<>(dimension);
-		list.add(v2);
 		list.add(v);
+		list.add(v2);
 		list.add(v3);
 		list.add(v4);
-		// list.add(v5);
-		// list.add(v3);
-		//Vector scaled = v.scale(3);
-		//Vector.Gauss_Jordan(list, dimension, new Vector(dimension));
+
+		/*double[] vector = new double[]{2,3};
+		double[] vector2 = new double[]{1,5};
+		double[] cons = new double[]{7,7};
+		Vector v = new Vector(vector, dimension);
+		Vector v2 = new Vector(vector2, dimension);
+		Vector constants = new Vector(cons, dimension);
+
+		List<Vector> list = new ArrayList<>(dimension);
+		list.add(v);
+		list.add(v2);*/
+
+
+		Vector result = Vector.Gauss_Jordan(list, dimension, constants);
 		Vector.span(list, dimension);
 		for(int j = 0; j < list.size(); j ++) {
 			for(int i = 0; i < list.get(j).getSize(); i++) {
@@ -231,8 +272,8 @@ public class Vector {
 			}
 			System.out.println();
 		}
-		// for(int i = 0; i < added.getSize(); i++) {
-		// 	System.out.print(added.getDataAtIndex(i) + " ");
-		// }
+		for(int i = 0; i < result.getSize(); i++) {
+			System.out.print(result.getDataAtIndex(i) + " ");
+		}
 	}
 }
