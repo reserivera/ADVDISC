@@ -165,7 +165,22 @@ public class Vector {
 	public int span(List<Vector> vectors, int dimension) {
 		//  The function must call the Gauss_Jordan function within it; i.e. the calculation for span must include Gauss-Jordan Elimination.
 		//        Usage example: Given a list of Vectors vecList, and an integer dim denoting the dimension of a vector inside vecList, Vector.span(vecList, dim) should return an integer variable containing the span of the set of vectors.
+		int span = 0;
+		double[] constants = new double[vectors.size()];
 
+		for(int i = 0; i < vectors.size(); i++) {
+			constants[i] = 0;	
+		}
+
+		Vector zeroConstants = new Vector(constants, constants.length);
+		Vector gaussJordan = this.Gauss_Jordan(vectors, dimension, zeroConstants);
+
+		for(int i = 0; i < gaussJordan.getSize(); i++) {
+			if(gaussJordan.getDataAtIndex(i) != null) {
+				span++;
+			}
+		}
+		
 		return 0;
 	}
 
