@@ -101,7 +101,8 @@ public class Vector {
 			switched = false;
 			for(int i = currInd; i < vectors.size(); i++) {
 				int j = currInd;
-				if(vectors.get(i).getDataAtIndex(currZero) > 0) {
+				if(vectors.get(i).getDataAtIndex(currZero) != 0 
+				&& vectors.get(i).getDataAtIndex(currZero) > vectors.get(j).getDataAtIndex(currZero)) {
 					
 					if(i != j) {
 						Vector v = vectors.get(j);
@@ -124,7 +125,7 @@ public class Vector {
 	}
 
 	public static void rowEchelon(List<Vector> vectors, int dimension, Vector constants){
-		for(int i = 0; i < vectors.size()-1 && i < dimension; i++) {
+		for(int i = 0; i < vectors.size() && i < dimension; i++) {
 			for(int j = i+1; j < vectors.size() && j < dimension; j++) {
 				if(vectors.get(j).getDataAtIndex(i) != 0){
 
@@ -140,6 +141,16 @@ public class Vector {
 
 				}
 			}
+
+			System.out.println("i is: " + i);
+			for(int j = 0; j < vectors.size(); j ++) {
+				for(int k = 0; k < vectors.get(j).getSize(); k++) {
+					System.out.printf("%.5f ",vectors.get(j).getDataAtIndex(k));
+				}
+				System.out.println();
+			}
+
+			System.out.println();
 		}
 		int reduceFactor = vectors.get(dimension-1).getDataAtIndex(dimension-1).intValue();
 		if(reduceFactor != 0){
@@ -147,10 +158,41 @@ public class Vector {
 			// add constant part
 			constants.setValue(dimension-1,constants.getDataAtIndex(dimension-1)/reduceFactor);
 		}
-		// for(int i = 0; i < vectors.size(); i++)
-		// 	if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
-		// 		vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
-		//return vectors;
+		// // for(int i = 0; i < vectors.size(); i++)
+		// // 	if(vectors.get(i).getDataAtIndex(i).intValue() != 0)
+		// // 		vectors.get(i).reduce(vectors.get(i).getDataAtIndex(i).intValue());
+		// // return vectors;
+
+		// PIVOT ALGORITHM FROM WEBSITE
+		// 1. Assuming the list is sorted, start with the pivot index of the first row (first nonzero digit)
+		// 2. Convert all digits in the column to zero besides the pivot index
+		// 3. Convert digit in pivot index to 1 by dividing it by itself
+		// 4. Move to the next row, then choose the next pivot index (first nonzero digit >= current row)
+		// 5. Repeat process
+		// NOT SURE: when magrereduce and stuff :'(
+		// int pivotIndex = 0;
+		// for(int i = 0; i < vectors.size(); i++) {
+		// 	for(int j = 0; j < dimension; j++) {
+		// 		if(vectors.get(i).getDataAtIndex(j) != 0) {
+		// 			pivotIndex = j;
+		// 			System.out.println("Hello the pivot is at index: " + i + " " + j);
+		// 			break;
+		// 		}
+		// 	}
+
+		// 	for(int k = 0; k < vectors.size(); k++) {
+		// 		if(i != k) {
+		// 			// TODO: Ideally, dito mag rereduce to 0 ng row+columns
+		// 		}
+		// 	}
+
+		// 	int reduceFactor = vectors.get(i).getDataAtIndex(pivotIndex).intValue();
+		// 	if(reduceFactor != 0){
+		// 		vectors.get(i).reduce(reduceFactor);
+		// 		// add constant part
+		// 		constants.setValue(i,constants.getDataAtIndex(pivotIndex)/reduceFactor);
+		// 	}
+		// }
 	}
 
 	public static void reducedRowEchelon(List<Vector> vectors, int dimension, Vector constants){
@@ -174,12 +216,13 @@ public class Vector {
 			}
 		}
 		for(int i = 0; i < vectors.size(); i++) {
-
-			int reduceFactor = vectors.get(i).getDataAtIndex(i).intValue();
-			if(reduceFactor != 0){
-				vectors.get(i).reduce(reduceFactor);
-				// add constant part
-				constants.setValue(i,constants.getDataAtIndex(i)/reduceFactor);
+			for(int j = 0; j < dimension; j++) {
+				int reduceFactor = vectors.get(i).getDataAtIndex(j).intValue();
+				if(reduceFactor != 0){
+					vectors.get(i).reduce(reduceFactor);
+					// add constant part
+					constants.setValue(i,constants.getDataAtIndex(i)/reduceFactor);
+				}
 			}
 		}
 		//return vectors;
@@ -195,7 +238,7 @@ public class Vector {
 		int span = 0;
 
 		Vector zeroConstants = new Vector(vectors.size());
-		Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
+		// Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
 
 		for(int i = 0; i < vectors.size(); i++) {
 			for(int j = i; j < dimension; j++){
@@ -235,11 +278,23 @@ public class Vector {
 		// double[] vector5 = new double[]{4, 0, 10, 13, 7};
 		// double[] vector3 = new double[]{0, 5, 10, 13, 3};
 		int dimension = 4;
-		double[] vector = new double[]{1, 1, 2, 0};
-		double[] vector2 = new double[]{2, -1, 0, 1};
-		double[] vector3 = new double[]{1, -1, -1, -2};
-		double[] vector4 = new double[]{2, -1, 2,-1};
-		double[] cons = new double[]{1, -2, 4,0};
+		// double[] vector = new double[]{2, 4, -2, 8, 4};
+		// double[] vector2 = new double[]{3, 6, 1, 12, -2};
+		// double[] vector3 = new double[]{9, 18, 1, 36, 38};
+		// double[] vector4 = new double[]{2, -1, 2,-1};
+		// double[] cons = new double[]{1, -2, 4};
+
+		// double[] vector = new double[]{1, 2};
+		// double[] vector2 = new double[]{1, 1};
+		// double[] vector3 = new double[]{2, 3};
+		// double[] cons = new double[]{3, 1, 1};
+
+		double[] vector = new double[]{0.02, 0.01, 0, 0};
+		double[] vector2 = new double[]{1, 2, 1, 0};
+		double[] vector3 = new double[]{0, 1, 2, 1};
+		double[] vector4 = new double[]{0, 0, 100, 200};
+		double[] cons = new double[]{0.02, 1, 4, 800};
+
 		Vector v = new Vector(vector, dimension);
 		Vector v2 = new Vector(vector2, dimension);
 		Vector v3 = new Vector(vector3, dimension);
