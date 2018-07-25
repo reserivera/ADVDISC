@@ -248,7 +248,7 @@ public class Vector {
 		int span = 0;
 
 		Vector zeroConstants = new Vector(vectors.size());
-		// Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
+		Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
 
 		for(int i = 0; i < vectors.size(); i++) {
 			for(int j = i; j < dimension; j++){
