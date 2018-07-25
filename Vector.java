@@ -262,6 +262,24 @@ public class Vector {
 		return span;
 	}
 
+	public List<Vector> transpose(List<Vector> vectors, int dimension) {
+		double[][] transposedDigits = new double[dimension][vectors.size()];
+		List<Vector> transposedMatrix = new ArrayList<Vector>(vectors.size());
+
+		for(int i = 0; i < dimension; i++) {
+			for(int j = 0; j < vectors.size(); j++) {
+				transposedDigits[i][j] = vectors.get(j).getDataAtIndex(i);
+			}
+		}
+
+		for(int i = 0; i < dimension; i++) {
+			Vector v = new Vector(transposedDigits[i], vectors.size());
+			transposedMatrix.add(v);
+		}
+
+		return transposedMatrix;
+	}
+
 	// for testing
 	public ArrayList<Double> getVector() {
 		return data;
