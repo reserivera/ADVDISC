@@ -222,22 +222,26 @@ public class Vector {
 			if(nonzeroIndex != -1) {
 				double factor = vectors.get(i).getDataAtIndex(nonzeroIndex);
 				vectors.get(i).scale(1/factor);
-				constants.setValue(nonzeroIndex, constants.getDataAtIndex(nonzeroIndex) / factor);
+				constants.setValue(i, constants.getDataAtIndex(i) / factor);
 			
 				// Set upper column to 0
 				if(i > 0) {
 					for(int k = i - 1; k >= 0; k--) {
 						if(vectors.get(k).getDataAtIndex(nonzeroIndex) != 0) {
-							System.out.println("At row: " + k + " nonzero index: " + nonzeroIndex);
 							Vector base = new Vector(vectors.get(i));
 							double factor2 = -1 * vectors.get(k).getDataAtIndex(nonzeroIndex);
+
+							System.out.println("Factor2: " + factor2);
 							
-							double first = constants.getDataAtIndex(nonzeroIndex)*base.getDataAtIndex(nonzeroIndex),
-							second = constants.getDataAtIndex(k)*factor2;
+							double first = constants.getDataAtIndex(k),
+							second = constants.getDataAtIndex(i)*factor2;
+
+							System.out.println("first: " + first + "second " + second);
 		
 							vectors.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
 							base.scale(1/factor2);
-							constants.setValue(k,first+second);
+							constants.setValue(k,first+second);	
+							System.out.println("Constant: " + constants.getDataAtIndex(k));
 						}
 					}
 				}
@@ -248,11 +252,18 @@ public class Vector {
 				for(int m = 0; m < vectors.get(l).getSize(); m++) {
 					System.out.printf("%.5f ",vectors.get(l).getDataAtIndex(m));
 				}
+				System.out.print("\t" + constants.getDataAtIndex(l));
 				System.out.println();
 			}
 
 			System.out.println();
 		}
+
+		// System.out.println("CONSTANTS: ");
+		// for(int i = 0; i < constants.getSize(); i++) {
+		// 	System.out.printf("%.5f ", constants.getDataAtIndex(i));
+		// }
+
 	}
 	
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
@@ -375,13 +386,13 @@ public class Vector {
 
 
 		//Vector result = Vector.Gauss_Jordan(list, dimension, constants);
-		Vector.span(list, dimension);
-		// for(int j = 0; j < list.size(); j ++) {
-		// 	for(int i = 0; i < list.get(j).getSize(); i++) {
-		// 		System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
-		// 	}
-		// 	System.out.println();
-		// }
+		Vector.Gauss_Jordan(list, dimension, constants);
+		for(int j = 0; j < list.size(); j ++) {
+			for(int i = 0; i < list.get(j).getSize(); i++) {
+				System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
+			}
+			System.out.println();
+		}
 		/*for(int i = 0; i < result.getSize(); i++) {
 			System.out.print(result.getDataAtIndex(i) + " ");
 		}*/
