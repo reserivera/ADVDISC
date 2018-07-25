@@ -98,7 +98,7 @@ public class Vector {
 			System.out.println();
 		}
 		Vector.rowEchelon(transposedMatrix, vectors.size(), constants);
-		// Vector.reducedRowEchelon(vectors,dimension, constants);
+		Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
 		return constants;
 	}
 
@@ -168,7 +168,7 @@ public class Vector {
 				Vector base = new Vector(vectors.get(max));
 				// for every row except for the pivot(startingRow), make the columns == 0
 				for(int row = startingRow+1; row < vectors.size(); row++) {
-					System.out.println("haaaa"+row + " " + col);
+					// System.out.println("haaaa"+row + " " + col);
 					if(vectors.get(row).getDataAtIndex(col) != 0) {
 						double factor = -1 * vectors.get(row).getDataAtIndex(col);
 
@@ -208,36 +208,51 @@ public class Vector {
 	}
 
 	public static void reducedRowEchelon(List<Vector> vectors, int dimension, Vector constants){
-		for(int i = min(vectors.size()-1,dimension-1); i > 0; i--) {
+		for(int i = vectors.size() - 1; i >= 0 ; i--) {
+			// Find nonzero digit in row
+			int nonzeroIndex = -1;
+			for(int j = 0; j < dimension; j++) {
+				if(vectors.get(i).getDataAtIndex(j) != 0) {
+					nonzeroIndex = j;
+					break;
+				}
+			}
+
+			// Reduce row at nonZeroIndex
+			if(nonzeroIndex != -1) {
+				double factor = vectors.get(i).getDataAtIndex(nonzeroIndex);
+				vectors.get(i).scale(1/factor);
+				constants.setValue(nonzeroIndex, constants.getDataAtIndex(nonzeroIndex) / factor);
 			
-			if(vectors.get(i).getDataAtIndex(i) != 0) {
-				for(int j = i-1; j >= 0; j--) {
-					if(vectors.get(j).getDataAtIndex(i) != 0){
-						Vector base = new Vector(vectors.get(i));
-						int factor = -1 * vectors.get(j).getDataAtIndex(i).intValue();
-
-						double first = constants.getDataAtIndex(j)*base.getDataAtIndex(i),
-						second = constants.getDataAtIndex(i)*factor;
-
-						vectors.get(j).scale(base.getDataAtIndex(i).intValue()).add(base.scale(factor));
-						// add constant part
-						
-						constants.setValue(j,first+second);
+				// Set upper column to 0
+				if(i > 0) {
+					for(int k = i - 1; k >= 0; k--) {
+						if(vectors.get(k).getDataAtIndex(nonzeroIndex) != 0) {
+							System.out.println("At row: " + k + " nonzero index: " + nonzeroIndex);
+							Vector base = new Vector(vectors.get(i));
+							double factor2 = -1 * vectors.get(k).getDataAtIndex(nonzeroIndex);
+							
+							double first = constants.getDataAtIndex(nonzeroIndex)*base.getDataAtIndex(nonzeroIndex),
+							second = constants.getDataAtIndex(k)*factor2;
+		
+							vectors.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
+							base.scale(1/factor2);
+							constants.setValue(k,first+second);
+						}
 					}
 				}
 			}
-		}
-		for(int i = 0; i < vectors.size(); i++) {
-			for(int j = 0; j < dimension; j++) {
-				int reduceFactor = vectors.get(i).getDataAtIndex(j).intValue();
-				if(reduceFactor != 0){
-					vectors.get(i).reduce(reduceFactor);
-					// add constant part
-					constants.setValue(i,constants.getDataAtIndex(i)/reduceFactor);
+
+			// FOR PRINTING (to be removed)
+			for(int l = 0; l < vectors.size(); l++) {
+				for(int m = 0; m < vectors.get(l).getSize(); m++) {
+					System.out.printf("%.5f ",vectors.get(l).getDataAtIndex(m));
 				}
+				System.out.println();
 			}
+
+			System.out.println();
 		}
-		//return vectors;
 	}
 	
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
@@ -361,12 +376,12 @@ public class Vector {
 
 		//Vector result = Vector.Gauss_Jordan(list, dimension, constants);
 		Vector.span(list, dimension);
-		for(int j = 0; j < list.size(); j ++) {
-			for(int i = 0; i < list.get(j).getSize(); i++) {
-				System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
-			}
-			System.out.println();
-		}
+		// for(int j = 0; j < list.size(); j ++) {
+		// 	for(int i = 0; i < list.get(j).getSize(); i++) {
+		// 		System.out.printf("%.5f ",list.get(j).getDataAtIndex(i));
+		// 	}
+		// 	System.out.println();
+		// }
 		/*for(int i = 0; i < result.getSize(); i++) {
 			System.out.print(result.getDataAtIndex(i) + " ");
 		}*/
