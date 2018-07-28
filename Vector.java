@@ -1,12 +1,18 @@
+/**
+ * @author BATOSALEM, Angelika && CORTEZ, Louise && RIVERA, Sophia
+ * @section S17
+ */
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
 public class Vector {
 	static int min(int a, int b) { 
-        return a < b ? a : b; 
-         
-    }
+		return a < b ? a : b; 
+
+	}
 
 	//A proper implementation of a vector function via the usage of a List-like data structure. (5 points)
 
@@ -80,17 +86,20 @@ public class Vector {
 		return this;
 	}
 	//    An implementation of a function that performs Gauss-Jordan Elimination on a given set of vectors. (30 points)
-	
+
 	//        The function must be static-like in nature, and must be callable from the Vector class. See usage example for more details.
 	//        Function header to be used: Vector Gauss_Jordan (List<Vector> vectors, int dimension, Vector constants)
 	//        The function must be a proper implementation of Gauss-Jordan Elimination, which reduces the given list of vectors into unit vectors via row operations.
 	//        Usage example: Given a list of vectors vecList, an integer dim, and a Vector c, Vector.Gauss_Jordan (vecList, dim, c) should return a Vector containing the solution to the corresponding system of linear equations. Ex. [x y z w] = [2 1 3 5]
-	
+
 	public static Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
 		// check if vectors.size() == dimension  
 		// if no, return null
 		List<Vector> transposedMatrix = Vector.transpose(vectors, dimension);
 
+		if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
+			return null;
+		
 		for(int j = 0; j < transposedMatrix.size(); j ++) {
 			for(int i = 0; i < transposedMatrix.get(j).getSize(); i++) {
 				System.out.printf("%.5f ",transposedMatrix.get(j).getDataAtIndex(i));
@@ -99,6 +108,24 @@ public class Vector {
 		}
 		Vector.rowEchelon(transposedMatrix, vectors.size(), constants);
 		Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
+		
+		//CHECKS IF THERE IS A ROW NA ALL ZERO -> NO SOLUTION
+		ArrayList<Double> zero = new ArrayList<>();
+		
+		for(int i=0; i<vectors.get(0).getSize(); i++)
+			zero.add(0.0);
+		
+	
+		for (int i=0; i<transposedMatrix.size(); i++) {
+//			printarr(zero);
+//			transposedMatrix.get(i).printData();
+			if (zero.equals(transposedMatrix.get(i).getVector())) {
+//				System.out.println(zero.equals(transposedMatrix.get(i).getData()));
+				return null;
+			}
+				
+		}
+			
 		return constants;
 	}
 
@@ -111,8 +138,8 @@ public class Vector {
 			for(int i = currInd; i < vectors.size(); i++) {
 				int j = currInd;
 				if(vectors.get(i).getDataAtIndex(currZero) != 0 
-				&& vectors.get(i).getDataAtIndex(currZero) > vectors.get(j).getDataAtIndex(currZero)) {
-					
+						&& vectors.get(i).getDataAtIndex(currZero) > vectors.get(j).getDataAtIndex(currZero)) {
+
 					if(i != j) {
 						Vector v = vectors.get(j);
 						vectors.set(j, vectors.get(i));
@@ -173,14 +200,14 @@ public class Vector {
 						double factor = -1 * vectors.get(row).getDataAtIndex(col);
 
 						double first = constants.getDataAtIndex(row)*base.getDataAtIndex(col),
-						second = constants.getDataAtIndex(startingRow)*factor;
+								second = constants.getDataAtIndex(startingRow)*factor;
 
 						vectors.get(row).scale(base.getDataAtIndex(col)).add(base.scale(factor));
 						//add constant part
 						base.scale(1/factor);
 						constants.setValue(row,first+second);
 					}
-					
+
 				}
 				System.out.println("\n");
 				// reduce the startingRow, col to 1
@@ -203,7 +230,7 @@ public class Vector {
 				startingRow++;
 			}
 
-			
+
 		}
 	}
 
@@ -223,7 +250,7 @@ public class Vector {
 				double factor = vectors.get(i).getDataAtIndex(nonzeroIndex);
 				vectors.get(i).scale(1/factor);
 				constants.setValue(i, constants.getDataAtIndex(i) / factor);
-			
+
 				// Set upper column to 0
 				if(i > 0) {
 					for(int k = i - 1; k >= 0; k--) {
@@ -232,12 +259,12 @@ public class Vector {
 							double factor2 = -1 * vectors.get(k).getDataAtIndex(nonzeroIndex);
 
 							System.out.println("Factor2: " + factor2);
-							
+
 							double first = constants.getDataAtIndex(k),
-							second = constants.getDataAtIndex(i)*factor2;
+									second = constants.getDataAtIndex(i)*factor2;
 
 							System.out.println("first: " + first + "second " + second);
-		
+
 							vectors.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
 							base.scale(1/factor2);
 							constants.setValue(k,first+second);	
@@ -265,11 +292,11 @@ public class Vector {
 		// }
 
 	}
-	
+
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
 	//        The function must be static-like in nature, and must be callable from the Vector class. See usage example for more details.
 	//        Function header to be used: int span (List<Vector> vectors, int dimension)
-	
+
 	public static int span(List<Vector> vectors, int dimension) {
 		//  The function must call the Gauss_Jordan function within it; i.e. the calculation for span must include Gauss-Jordan Elimination.
 		//        Usage example: Given a list of Vectors vecList, and an integer dim denoting the dimension of a vector inside vecList, Vector.span(vecList, dim) should return an integer variable containing the span of the set of vectors.
@@ -286,7 +313,7 @@ public class Vector {
 				}
 			}
 		}
-		
+
 		return span;
 	}
 
@@ -307,6 +334,8 @@ public class Vector {
 
 		return transposedMatrix;
 	}
+	
+	
 
 	// for testing
 	public ArrayList<Double> getVector() {
@@ -325,6 +354,24 @@ public class Vector {
 	public Double getDataAtIndex(int i) {
 		return data.get(i);
 	}
+	
+	public ArrayList<Double> getData(){
+		return data;
+	}
+	
+	public void printData() {
+		for(int i=0; i<data.size(); i++)
+			System.out.print(data.get(i) + "   ");
+		
+		System.out.println("");
+	}
+	
+	public static void printarr(ArrayList<Double> arr) {
+		System.out.println("PRINTING ARRAY");
+		for(int i=0; i<arr.size(); i++)
+			System.out.print(arr.get(i) + " ! ");
+	}
+	
 
 	// for testing (to be removed)
 	public static void main(String[] args) {
@@ -338,9 +385,15 @@ public class Vector {
 		double[] vector2 = new double[]{3, 6, 1, 12, -2};
 		double[] vector3 = new double[]{9, 18, 1, 36, 38};
 		double[] vector4 = new double[]{2, -1, 2,-1};*/
-		double[] cons = new double[]{1, -2, 4};
+		double[] cons = new double[]{1, -1, 0, 1};
 
-
+		//FOR NULL
+//		double[] vector = new double[]{0, 1, -3, 4};
+//		double[] vector2 = new double[]{2,-2,	1,	0};
+//		double[] vector3 = new double[]{2,	-1,	-2,	4};
+//		double[] vector4 = new double[]{-6,	4,	3,	-8};
+		
+		//FOR NOT NULL
 		double[] vector = new double[]{2, 3, 9};
 		double[] vector2 = new double[]{4, 6, 18};
 		double[] vector3 = new double[]{-2, 1, 1};
@@ -351,7 +404,7 @@ public class Vector {
 		double[] vector2 = new double[]{2,3,-3};
 		double[] vector3 = new double[]{-4,3,1};
 		double[] cons = new double[]{3, 15,14};
-*/
+		 */
 		// double[] vector = new double[]{0.02, 0.01, 0, 0};
 		// double[] vector2 = new double[]{1, 2, 1, 0};
 		// double[] vector3 = new double[]{0, 1, 2, 1};
@@ -363,7 +416,7 @@ public class Vector {
 		Vector v3 = new Vector(vector3, dimension);
 		Vector v4 = new Vector(vector4, dimension);
 		Vector v5 = new Vector(vector5, dimension);
-		// Vector v4 = new Vector(vector4, dimension);
+		
 		Vector constants = new Vector(cons, dimension);
 
 		List<Vector> list = new ArrayList<>(dimension);
@@ -379,7 +432,6 @@ public class Vector {
 		Vector v = new Vector(vector, dimension);
 		Vector v2 = new Vector(vector2, dimension);
 		Vector constants = new Vector(cons, dimension);
-
 		List<Vector> list = new ArrayList<>(dimension);
 		list.add(v);
 		list.add(v2);*/
