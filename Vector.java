@@ -97,8 +97,7 @@ public class Vector {
 		// if no, return null
 		List<Vector> transposedMatrix = Vector.transpose(vectors, dimension);
 
-		if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
-			return null;
+		
 		
 		for(int j = 0; j < transposedMatrix.size(); j ++) {
 			for(int i = 0; i < transposedMatrix.get(j).getSize(); i++) {
@@ -110,24 +109,32 @@ public class Vector {
 		Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
 		
 		//CHECKS IF THERE IS A ROW NA ALL ZERO -> NO SOLUTION
+		if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
+			return null;
+		
+		vectors.clear(); 
+		vectors.addAll(transposedMatrix);
+		
+		/*
 		ArrayList<Double> zero = new ArrayList<>();
 		
 		for(int i=0; i<vectors.get(0).getSize(); i++)
 			zero.add(0.0);
 		
-	
 		for (int i=0; i<transposedMatrix.size(); i++) {
-//			printarr(zero);
-//			transposedMatrix.get(i).printData();
-			if (zero.equals(transposedMatrix.get(i).getVector())) {
-//				System.out.println(zero.equals(transposedMatrix.get(i).getData()));
-				return null;
-			}
-				
+			if (zero.equals(transposedMatrix.get(i).getVector())) 
+				return null;	
 		}
-			
+		*/
+		
+		for(int i=0; i<vectors.size(); i++)
+			if(vectors.get(i).getDataAtIndex(i) != 1) 
+				return null;
+		
 		return constants;
 	}
+	
+	
 
 	public static void swap(List<Vector> vectors, int dimension, Vector constants){
 		int currInd = 0, currZero = 0;
@@ -286,11 +293,6 @@ public class Vector {
 			System.out.println();
 		}
 
-		// System.out.println("CONSTANTS: ");
-		// for(int i = 0; i < constants.getSize(); i++) {
-		// 	System.out.printf("%.5f ", constants.getDataAtIndex(i));
-		// }
-
 	}
 
 	//    An implementation of a function that calculates the span of a list of vectors. (5 points)
@@ -304,7 +306,8 @@ public class Vector {
 
 		Vector zeroConstants = new Vector(vectors.size());
 		Vector gaussJordan = Gauss_Jordan(vectors, dimension, zeroConstants);
-
+		
+		
 		for(int i = 0; i < vectors.size(); i++) {
 			for(int j = i; j < dimension; j++){
 				if(vectors.get(i).getDataAtIndex(j) != 0) {
@@ -380,7 +383,7 @@ public class Vector {
 		// double[] vector4 = new double[]{4, 4.3, 10, 13, 9};
 		// double[] vector5 = new double[]{4, 0, 10, 13, 7};
 		// double[] vector3 = new double[]{0, 5, 10, 13, 3};
-		int dimension = 3;
+		int dimension = 4;
 		/*double[] vector = new double[]{2, 4, -2, 8, 4};
 		double[] vector2 = new double[]{3, 6, 1, 12, -2};
 		double[] vector3 = new double[]{9, 18, 1, 36, 38};
@@ -388,17 +391,17 @@ public class Vector {
 		double[] cons = new double[]{1, -1, 0, 1};
 
 		//FOR NULL
-//		double[] vector = new double[]{0, 1, -3, 4};
-//		double[] vector2 = new double[]{2,-2,	1,	0};
-//		double[] vector3 = new double[]{2,	-1,	-2,	4};
-//		double[] vector4 = new double[]{-6,	4,	3,	-8};
+		double[] vector = new double[]{0, 1, -3, 4};
+		double[] vector2 = new double[]{2,-2,	1,	0};
+		double[] vector3 = new double[]{2,	-1,	-2,	4};
+		double[] vector4 = new double[]{-6,	4,	3,	-8};
 		
 		//FOR NOT NULL
-		double[] vector = new double[]{2, 3, 9};
-		double[] vector2 = new double[]{4, 6, 18};
-		double[] vector3 = new double[]{-2, 1, 1};
-		double[] vector4 = new double[]{8, 12, 36};
-		double[] vector5 = new double[]{4, -2, 38};
+//		double[] vector = new double[]{2, 3, 9};
+//		double[] vector2 = new double[]{4, 6, 18};
+//		double[] vector3 = new double[]{-2, 1, 1};
+//		double[] vector4 = new double[]{8, 12, 36};
+//		double[] vector5 = new double[]{4, -2, 38};
 
 		/*double[] vector = new double[]{3,2,5};
 		double[] vector2 = new double[]{2,3,-3};
@@ -415,7 +418,7 @@ public class Vector {
 		Vector v2 = new Vector(vector2, dimension);
 		Vector v3 = new Vector(vector3, dimension);
 		Vector v4 = new Vector(vector4, dimension);
-		Vector v5 = new Vector(vector5, dimension);
+//		Vector v5 = new Vector(vector5, dimension);
 		
 		Vector constants = new Vector(cons, dimension);
 
@@ -424,7 +427,7 @@ public class Vector {
 		list.add(v2);
 		list.add(v3);
 		list.add(v4);
-		list.add(v5);
+//		list.add(v5);
 
 		/*double[] vector = new double[]{2,3};
 		double[] vector2 = new double[]{1,5};
@@ -445,6 +448,8 @@ public class Vector {
 			}
 			System.out.println();
 		}
+		
+		System.out.println("SPAN is " + Vector.span(list, dimension));
 		/*for(int i = 0; i < result.getSize(); i++) {
 			System.out.print(result.getDataAtIndex(i) + " ");
 		}*/
