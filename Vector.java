@@ -39,14 +39,6 @@ public class Vector {
 		return this;
 	}
 
-	public Vector reduce(int scalar) {
-
-		for(int i = 0; i < data.size(); i++) {
-			data.set(i,data.get(i) / scalar);
-		}
-		return this;
-	}
-
 	public Vector add(Vector addend) {
 		if(data.size() != addend.getSize()) {
 			return null;
@@ -66,12 +58,6 @@ public class Vector {
 		if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
 			return null;
 		
-		for(int j = 0; j < transposedMatrix.size(); j ++) {
-			for(int i = 0; i < transposedMatrix.get(j).getSize(); i++) {
-				System.out.printf("%.5f ",transposedMatrix.get(j).getDataAtIndex(i));
-			}
-			System.out.println();
-		}
 		Vector.rowEchelon(transposedMatrix, vectors.size(), constants);
 		Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
 		
