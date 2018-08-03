@@ -50,11 +50,53 @@ public class Matrix {
     }
 
     // An implementation of function for matrix multiplication.
-    public double[][] times (Matrix other) {
+    public Matrix times (Matrix other) {
         // Errors for size mismatches when multiplying matrices must also be handled.
-        if(matrix.getNumCols() != other.getNumRows()) {
+        if(columns != other.getNumRows()) {
             return null;
         }
+
+        List<Vector> tempMatrix = new ArrayList<Vector>();
+        double[][] multiplied = new double[rows][other.getNumCols()];
+
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < other.getNumCols(); j++) {
+                for(int k = 0; k < other.getNumRows(); k++) {
+                    multiplied[i][j] += matrix.get(i).getDataAtIndex(k) * other.getVectorAtIndex(k).getDataAtIndex(j);
+                }
+
+                Vector v = new Vector(multiplied[i], other.getNumCols());
+                tempMatrix.add(v);
+            }
+        }
+
+        // double[][] A = {{1, 2, 3},
+        //                 {4, 5, 6}};
+        
+        // double[][] B = {{1, 0, 1},
+        //                 {0, 1, 0},
+        //                 {0, 0, 1}};
+
+        // double[][] C = new double[A.length][B[0].length];
+
+        // for(int i = 0; i < A.length; i++) {
+        //     double[] multiplied = new double[B[0].length];
+        //     for(int j = 0; j < B[0].length; j++) {
+        //         for(int k = 0; k < B.length; k++) {
+        //             C[i][j] += A[i][k] * B[k][j];
+        //         }
+        //     }
+        // }
+
+        // for(int i = 0; i < C.length; i++) {
+        //     for(int j = 0; j < C[0].length; j++) {
+        //         System.out.print(C[i][j] + "\t");
+        //     }
+
+        //     System.out.println();
+        // }
+
+        return new Matrix(tempMatrix, rows);
     }
 
     // An implementation of a function that performs Gauss-Jordan 
@@ -77,8 +119,13 @@ public class Matrix {
         return columns;
     }
 
+    public Vector getVectorAtIndex(int i) {
+        return matrix.get(i);
+    }
+
     // For testing
     public static void main(String[] args) {
         Matrix m = new Matrix(3);
+        // m.times(null);
     }
 }
