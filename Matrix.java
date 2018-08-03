@@ -65,8 +65,8 @@ public class Matrix {
                     multiplied[i][j] += matrix.get(i).getDataAtIndex(k) * other.getVectorAtIndex(k).getDataAtIndex(j);
                 }
 
-                Vector v = new Vector(multiplied[i], other.getNumCols());
-                tempMatrix.add(v);
+                // Vector v = new Vector(multiplied[i], other.getNumCols());
+                // tempMatrix.add(v);
             }
         }
 
