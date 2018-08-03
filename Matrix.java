@@ -4,11 +4,12 @@
  */
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Matrix {
     // The usage of an Array/List-like structure to store Matrix data 
     // as a list of Vectors. You may also store the Matrix as a 2d array.
-    private ArrayList<Vector> vectors;
+    private List<Vector> matrix;
 
     // The usage of immutable Integer variables to hold values for 
     // the number of rows/columns.
@@ -22,6 +23,21 @@ public class Matrix {
     public Matrix(int dimension) {
         rows = dimension;
         this.dimension = dimension;
+        double[] row = new double[dimension];
+        matrix = new ArrayList<Vector>();
+
+        for(int i = 0; i < dimension; i++) {
+            for(int j = 0; j < dimension; j++) {
+                if(i == j) {
+                    row[j] = 1;
+                } else {
+                    row[j] = 0;
+                }
+            }
+
+            Vector v = new Vector(row, dimension);
+            matrix.add(v);
+        }
     }
 
     // A proper implementation of a constructor, converting an 
@@ -34,20 +50,35 @@ public class Matrix {
     }
 
     // An implementation of function for matrix multiplication.
-    public static Matrix times (Matrix other) {
+    public double[][] times (Matrix other) {
         // Errors for size mismatches when multiplying matrices must also be handled.
-        return null;
+        if(matrix.getNumCols() != other.getNumRows()) {
+            return null;
+        }
     }
 
     // An implementation of a function that performs Gauss-Jordan 
     // Elimination to find the determinant of the matrix.
-    public static double det () {
+    public double det () {
         return 0.0;
     }
 
     // An implementation of a function that finds the inverse of the matrix.
-    public static Matrix inverse () {
+    public Matrix inverse () {
         // The function must return a null value if the matrix has no inverse.
         return null;
+    }
+
+    public int getNumRows() {
+        return rows;
+    }
+
+    public int getNumCols() {
+        return columns;
+    }
+
+    // For testing
+    public static void main(String[] args) {
+        Matrix m = new Matrix(3);
     }
 }
