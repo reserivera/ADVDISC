@@ -47,6 +47,9 @@ public class Matrix {
         columns = list.size();
         rows = dimension;
         this.dimension = dimension;
+
+        // TODO remove transpose in Vector class (?)
+        matrix = Vector.transpose(list, dimension);
     }
 
     // An implementation of function for matrix multiplication.
@@ -65,10 +68,12 @@ public class Matrix {
                     multiplied[i][j] += matrix.get(i).getDataAtIndex(k) * other.getVectorAtIndex(k).getDataAtIndex(j);
                 }
 
-                // Vector v = new Vector(multiplied[i], other.getNumCols());
-                // tempMatrix.add(v);
+                Vector v = new Vector(multiplied[i], other.getNumCols());
+                tempMatrix.add(v);
             }
         }
+
+        return new Matrix(tempMatrix, rows);
 
         // double[][] A = {{1, 2, 3},
         //                 {4, 5, 6}};
@@ -95,8 +100,6 @@ public class Matrix {
 
         //     System.out.println();
         // }
-
-        return new Matrix(tempMatrix, rows);
     }
 
     // An implementation of a function that performs Gauss-Jordan 
