@@ -13,8 +13,8 @@ public class Matrix {
 
     // The usage of immutable Integer variables to hold values for 
     // the number of rows/columns.
-    private int rows;
-    private int columns;
+    private final int rows;
+    private final int columns;
     
     private int dimension; // ?? not sure
 
@@ -22,6 +22,7 @@ public class Matrix {
     // the matrix as an identity matrix of a given dimension.
     public Matrix(int dimension) {
         rows = dimension;
+        columns = dimension;
         this.dimension = dimension;
         double[] row = new double[dimension];
         matrix = new ArrayList<Vector>();
@@ -105,13 +106,46 @@ public class Matrix {
     // An implementation of a function that performs Gauss-Jordan 
     // Elimination to find the determinant of the matrix.
     public double det () {
-        return 0.0;
+        if(rows != columns) {
+            return 0.0;
+        }
+
+        double det = 1.0;
+        
+        det = rowEchelon(matrix, columns, det);
+        det = reducedRowEchelon(matrix, columns, det);
+
+        return det;
     }
 
     // An implementation of a function that finds the inverse of the matrix.
     public Matrix inverse () {
         // The function must return a null value if the matrix has no inverse.
-        return null;
+        if(det() == 0.0) {
+            return null;
+        }
+
+        Matrix m = new Matrix(rows);
+        List<Vector> vectors = new ArrayList<Vector>(rows);
+
+        for(int i = 0; i < rows; i++) {
+            List<double> rows = new ArrayList<double>();
+            rows.add(matrix.get(i));
+            rows.add(m.get(i));
+            double[] newRow = new double[rows*2];
+            rows.toArray(newRow);
+
+            Vector v = new Vector(rows, rows * 2);
+            vectors.add(v);
+        }
+
+        double det = rowEchelon(vectors, rows, 1.0);
+        reducedRowEchelon(vectors, rows, det);
+
+        // TODO split array in half 
+
+        Matrix inverse ;
+
     }
 
     public int getNumRows() {
@@ -125,6 +159,77 @@ public class Matrix {
     public Vector getVectorAtIndex(int i) {
         return matrix.get(i);
     }
+
+    public static double rowEchelon(List<Vector> vectors, int dimension, double determinant){
+		int startingRow = 0;
+		for (int col = 0; col < dimension; col++) {
+			int max = startingRow;
+			
+			while(vectors.get(max).getDataAtIndex(col) == 0 && max < vectors.size()-1)
+				max++;
+			
+			if(vectors.get(max).getDataAtIndex(col) != 0) {
+				if(max != startingRow) {
+					Vector v = vectors.get(max);
+					vectors.set(max, vectors.get(startingRow));
+					vectors.set(startingRow, v);
+
+                    determinant = -1 * determinant;
+				}
+
+				Vector base = new Vector(vectors.get(max));
+				for(int row = startingRow+1; row < vectors.size(); row++) {
+					if(vectors.get(row).getDataAtIndex(col) != 0) {
+						double factor = -1 * vectors.get(row).getDataAtIndex(col);
+
+                        determinant = base.getDataAtIndex(col) * determinant;
+						vectors.get(row).scale(base.getDataAtIndex(col)).add(base.scale(factor));
+					
+						base.scale(1/factor);
+					}
+
+				}
+
+				startingRow++;
+			}
+		}
+
+        return determinant;
+	}
+
+	public static double reducedRowEchelon(List<Vector> vectors, int dimension, double determinant){
+		for(int i = vectors.size() - 1; i >= 0 ; i--) {
+			int nonzeroIndex = -1;
+			for(int j = 0; j < dimension; j++) {
+				if(vectors.get(i).getDataAtIndex(j) != 0) {
+					nonzeroIndex = j;
+					break;
+				}
+			}
+
+			if(nonzeroIndex != -1) {
+				double factor = vectors.get(i).getDataAtIndex(nonzeroIndex);
+				vectors.get(i).scale(1/factor);
+                determinant = determinant * 1/factor;
+
+				if(i > 0) {
+					for(int k = i - 1; k >= 0; k--) {
+						if(vectors.get(k).getDataAtIndex(nonzeroIndex) != 0) {
+							Vector base = new Vector(vectors.get(i));
+							double factor2 = -1 * vectors.get(k).getDataAtIndex(nonzeroIndex);
+
+							vectors.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
+							base.scale(1/factor2);
+                            determinant = determinant * base.getDataAtIndex(nonzeroIndex);
+						}
+					}
+				}
+			}
+		}
+
+        return determinant;
+
+	}
 
     // For testing
     public static void main(String[] args) {
