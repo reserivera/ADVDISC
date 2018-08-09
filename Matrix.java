@@ -111,15 +111,24 @@ public class Matrix {
         }
 
         double det = 1.0;
-        
+        int span = 0;
         det = rowEchelon(matrix, columns, det);
         det = reducedRowEchelon(matrix, columns, det);
+        for(int i = 0; i < matrix.size(); i++) {
+            for(int j = i; j < rows; j++){
+                if(matrix.get(i).getDataAtIndex(j) != 0) {
+                    span++;
+                    break;
+                }
+            }
+        }
 
-        return det;
+
+        return (rows == span)?1/det:0;
     }
 
     // An implementation of a function that finds the inverse of the matrix.
-    public Matrix inverse () {
+    /*public Matrix inverse () {
         // The function must return a null value if the matrix has no inverse.
         if(det() == 0.0) {
             return null;
@@ -129,13 +138,13 @@ public class Matrix {
         List<Vector> vectors = new ArrayList<Vector>(rows);
 
         for(int i = 0; i < rows; i++) {
-            List<double> rows = new ArrayList<double>();
-            rows.add(matrix.get(i));
-            rows.add(m.get(i));
+            List<Double> newRowList = new ArrayList<Double>();
+            newRowList.addAll(matrix.get(i).getVector());
+            newRowList.addAll(m.getVectorAtIndex(i).getVector());
             double[] newRow = new double[rows*2];
-            rows.toArray(newRow);
+            newRowList.toArray(newRow);
 
-            Vector v = new Vector(rows, rows * 2);
+            Vector v = new Vector(newRow, rows * 2);
             vectors.add(v);
         }
 
@@ -146,7 +155,7 @@ public class Matrix {
 
         Matrix inverse ;
 
-    }
+    }*/
 
     public int getNumRows() {
         return rows;
@@ -160,30 +169,30 @@ public class Matrix {
         return matrix.get(i);
     }
 
-    public static double rowEchelon(List<Vector> vectors, int dimension, double determinant){
+    public double rowEchelon(List<Vector> matrix, int columns, double determinant){
 		int startingRow = 0;
-		for (int col = 0; col < dimension; col++) {
+		for (int col = 0; col < columns; col++) {
 			int max = startingRow;
 			
-			while(vectors.get(max).getDataAtIndex(col) == 0 && max < vectors.size()-1)
+			while(matrix.get(max).getDataAtIndex(col) == 0 && max < matrix.size()-1)
 				max++;
 			
-			if(vectors.get(max).getDataAtIndex(col) != 0) {
+			if(matrix.get(max).getDataAtIndex(col) != 0) {
 				if(max != startingRow) {
-					Vector v = vectors.get(max);
-					vectors.set(max, vectors.get(startingRow));
-					vectors.set(startingRow, v);
+					Vector v = matrix.get(max);
+					matrix.set(max, matrix.get(startingRow));
+					matrix.set(startingRow, v);
 
                     determinant = -1 * determinant;
 				}
 
-				Vector base = new Vector(vectors.get(max));
-				for(int row = startingRow+1; row < vectors.size(); row++) {
-					if(vectors.get(row).getDataAtIndex(col) != 0) {
-						double factor = -1 * vectors.get(row).getDataAtIndex(col);
+				Vector base = new Vector(matrix.get(max));
+				for(int row = startingRow+1; row < matrix.size(); row++) {
+					if(matrix.get(row).getDataAtIndex(col) != 0) {
+						double factor = -1 * matrix.get(row).getDataAtIndex(col);
 
                         determinant = base.getDataAtIndex(col) * determinant;
-						vectors.get(row).scale(base.getDataAtIndex(col)).add(base.scale(factor));
+						matrix.get(row).scale(base.getDataAtIndex(col)).add(base.scale(factor));
 					
 						base.scale(1/factor);
 					}
@@ -197,28 +206,28 @@ public class Matrix {
         return determinant;
 	}
 
-	public static double reducedRowEchelon(List<Vector> vectors, int dimension, double determinant){
-		for(int i = vectors.size() - 1; i >= 0 ; i--) {
+	public double reducedRowEchelon(List<Vector> matrix, int columns, double determinant){
+		for(int i = matrix.size() - 1; i >= 0 ; i--) {
 			int nonzeroIndex = -1;
-			for(int j = 0; j < dimension; j++) {
-				if(vectors.get(i).getDataAtIndex(j) != 0) {
+			for(int j = 0; j < columns; j++) {
+				if(matrix.get(i).getDataAtIndex(j) != 0) {
 					nonzeroIndex = j;
 					break;
 				}
 			}
 
 			if(nonzeroIndex != -1) {
-				double factor = vectors.get(i).getDataAtIndex(nonzeroIndex);
-				vectors.get(i).scale(1/factor);
+				double factor = matrix.get(i).getDataAtIndex(nonzeroIndex);
+				matrix.get(i).scale(1/factor);
                 determinant = determinant * 1/factor;
 
 				if(i > 0) {
 					for(int k = i - 1; k >= 0; k--) {
-						if(vectors.get(k).getDataAtIndex(nonzeroIndex) != 0) {
-							Vector base = new Vector(vectors.get(i));
-							double factor2 = -1 * vectors.get(k).getDataAtIndex(nonzeroIndex);
+						if(matrix.get(k).getDataAtIndex(nonzeroIndex) != 0) {
+							Vector base = new Vector(matrix.get(i));
+							double factor2 = -1 * matrix.get(k).getDataAtIndex(nonzeroIndex);
 
-							vectors.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
+							matrix.get(k).scale(base.getDataAtIndex(nonzeroIndex)).add(base.scale(factor2));
 							base.scale(1/factor2);
                             determinant = determinant * base.getDataAtIndex(nonzeroIndex);
 						}
@@ -234,6 +243,18 @@ public class Matrix {
     // For testing
     public static void main(String[] args) {
         Matrix m = new Matrix(3);
-        // m.times(null);
+        int dim = 3;
+        /*Vector v = new Vector(new double[]{1,2}, dim);
+        Vector v2 = new Vector(new double[]{1,2}, dim);*/
+        Vector v = new Vector(new double[]{4,1,2}, dim);
+        Vector v2 = new Vector(new double[]{6,5,7}, dim);
+        Vector v3 = new Vector(new double[]{2,4,3}, dim);
+  
+        List<Vector> list = new ArrayList<>(dim);
+        list.add(v);
+        list.add(v2);
+        list.add(v3);
+        Matrix matrix = new Matrix(list, dim);
+        System.out.println(matrix.det());
     }
 }
