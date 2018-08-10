@@ -53,6 +53,18 @@ public class Matrix {
         matrix = Vector.transpose(list, dimension);
     }
 
+    public Matrix(Matrix m) {
+        this.columns = m.getNumCols();
+        this.rows = m.getNumRows();
+
+        List<Vector> newVector = new ArrayList<Vector>();
+        for(int i = 0; i < m.getNumRows(); i++) {
+            Vector v = new Vector(m.getVectorAtIndex(i));
+            newVector.add(v);
+        }
+        this.matrix = newVector;
+    }
+
     // An implementation of function for matrix multiplication.
     public Matrix times (Matrix other) {
         // Errors for size mismatches when multiplying matrices must also be handled.
@@ -110,13 +122,14 @@ public class Matrix {
             return 0.0;
         }
 
+        Matrix m = new Matrix(this);
         double det = 1.0;
         int span = 0;
-        det = rowEchelon(matrix, columns, det);
-        det = reducedRowEchelon(matrix, columns, det);
-        for(int i = 0; i < matrix.size(); i++) {
+        det = rowEchelon(m.getMatrix(), columns, det);
+        det = reducedRowEchelon(m.getMatrix(), columns, det);
+        for(int i = 0; i < m.getMatrix().size(); i++) {
             for(int j = i; j < rows; j++){
-                if(matrix.get(i).getDataAtIndex(j) != 0) {
+                if(m.getMatrix().get(i).getDataAtIndex(j) != 0) {
                     span++;
                     break;
                 }
@@ -163,6 +176,10 @@ public class Matrix {
 
     public int getNumCols() {
         return columns;
+    }
+
+    public List<Vector> getMatrix(){
+        return matrix;
     }
 
     public Vector getVectorAtIndex(int i) {
