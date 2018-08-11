@@ -74,6 +74,8 @@ public class Matrix {
             tempMatrix.add(v);
         }
 
+        tempMatrix = Vector.transpose(tempMatrix, rows);
+
         return new Matrix(tempMatrix, rows);
     }
 
@@ -86,8 +88,8 @@ public class Matrix {
 
         double det = 1.0;
         int span = 0;
-        det = rowEchelon(matrix, columns, det);
-        det = reducedRowEchelon(matrix, columns, det);
+        det = rowEchelon(columns, det);
+        det = reducedRowEchelon(columns, det);
         for(int i = 0; i < matrix.size(); i++) {
             for(int j = i; j < rows; j++){
                 if(matrix.get(i).getDataAtIndex(j) != 0) {
@@ -102,40 +104,55 @@ public class Matrix {
     }
 
         // An implementation of a function that finds the inverse of the matrix.
-        public Matrix inverse() {
-            // // The function must return a null value if the matrix has no inverse.
-            Matrix temp = new Matrix(matrix, rows);
+    public Matrix inverse() {
+        // // The function must return a null value if the matrix has no inverse.
+        Matrix temp = new Matrix(matrix, rows);
 
-            if(temp.det() == 0.0) {
-                return null;
-            }
-            
-            Matrix m = new Matrix(rows);
-            List<Vector> vectors = new ArrayList<Vector>(rows);
-    
-            for(int i = 0; i < rows; i++) {
-                double[] tempRow = new double[rows * 2];
-    
-                for(int j = 0; j < rows * 2; j++) {
-                    if(j < rows) {
-                        tempRow[j] = matrix.get(j % rows).getDataAtIndex(i);
-                    } else {
-                        tempRow[j] = m.getVectorAtIndex(i).getDataAtIndex(j % rows);
-                    }
-                }
-    
-                vectors.add(new Vector(tempRow, rows));
-            }
-
-            for(int i = 0; i < rows; i++) {
-                for(int j = 0; j < rows * 2; j++) {
-                    System.out.print(vectors.get(i).getDataAtIndex(j) + "\t");
-                }
-
-                System.out.println();
-            }
-            return new Matrix(vectors, rows);
+        if(temp.det() == 0.0) {
+            return null;
         }
+        
+        Matrix m = new Matrix(rows);
+        List<Vector> vectors = new ArrayList<Vector>(rows);
+
+        for(int i = 0; i < rows; i++) {
+            double[] tempRow = new double[rows * 2];
+
+            for(int j = 0; j < rows * 2; j++) {
+                if(j < rows) {
+                    tempRow[j] = matrix.get(i).getDataAtIndex(j % rows);
+                } else {
+                    tempRow[j] = m.getVectorAtIndex(i).getDataAtIndex(j % rows);
+                }
+            }
+
+            vectors.add(new Vector(tempRow, rows));
+        }
+
+        vectors = Vector.transpose(vectors, rows * 2);
+
+        Matrix reduceInverse = new Matrix(vectors, rows);
+        double det = reduceInverse.rowEchelon(reduceInverse.getNumRows(), 1);
+        reduceInverse.reducedRowEchelon(reduceInverse.getNumRows(), det);
+
+        List<Vector> vectors2 = new ArrayList<Vector>(rows);
+
+        for(int i = 0; i < reduceInverse.getNumRows(); i++) {
+            double[] tempRow = new double[reduceInverse.getNumRows()];
+
+            for(int j = 0; j < reduceInverse.getNumCols(); j++) {
+                if(j >= reduceInverse.getNumRows()) {
+                    tempRow[j % rows] = reduceInverse.getVectorAtIndex(i).getDataAtIndex(j);
+                } 
+            }
+
+            vectors2.add(new Vector(tempRow, rows));
+        }
+
+        vectors2 = Vector.transpose(vectors2, rows);
+
+        return new Matrix(vectors2, rows);
+    }
 
     public int getNumRows() {
         return rows;
@@ -149,7 +166,7 @@ public class Matrix {
         return matrix.get(i);
     }
 
-    public double rowEchelon(List<Vector> matrix, int columns, double determinant){
+    public double rowEchelon(int columns, double determinant){
 		int startingRow = 0;
 		for (int col = 0; col < columns; col++) {
 			int max = startingRow;
@@ -186,7 +203,7 @@ public class Matrix {
         return determinant;
 	}
 
-	public double reducedRowEchelon(List<Vector> matrix, int columns, double determinant){
+	public double reducedRowEchelon(int columns, double determinant){
 		for(int i = matrix.size() - 1; i >= 0 ; i--) {
 			int nonzeroIndex = -1;
 			for(int j = 0; j < columns; j++) {
@@ -214,10 +231,9 @@ public class Matrix {
 					}
 				}
 			}
-		}
+        }
 
         return determinant;
-
 	}
 
     // For testing
@@ -238,27 +254,53 @@ public class Matrix {
 
 
         // ----------- FOR MULTIPLICATION TESTING
-        // Vector v4 = new Vector(new double[]{2, 0, 0}, dim);
-        // Vector v5 = new Vector(new double[]{0, 2, 0}, dim);
-        // Vector v6 = new Vector(new double[]{0, 0, 2}, dim);
+        Vector v4 = new Vector(new double[]{2, 0, 0}, dim);
+        Vector v5 = new Vector(new double[]{0, 2, 0}, dim);
+        Vector v6 = new Vector(new double[]{0, 0, 2}, dim);
 
-        // List<Vector> list2 = new ArrayList<>(dim);
-        // list2.add(v4);
-        // list2.add(v5);
-        // list2.add(v6);
-        // Matrix matrix2 = new Matrix(list2, dim);
+        List<Vector> list2 = new ArrayList<>(dim);
+        list2.add(v4);
+        list2.add(v5);
+        list2.add(v6);
+        Matrix matrix2 = new Matrix(list2, 3);
 
-        // Matrix mul = matrix.times(matrix2);
+        Matrix mul = matrix.times(matrix2);
 
-        // for(int i = 0; i < mul.getNumRows(); i++) {
-        //     for(int j = 0; j < mul.getNumCols(); j++) {
-        //         System.out.print(mul.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
-        //     }
+        System.out.println("------ MULTIPLICATION ------");
+        if(mul != null) {
+            for(int i = 0; i < mul.getNumRows(); i++) {
+                for(int j = 0; j < mul.getNumCols(); j++) {
+                    System.out.print(mul.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
+                }
+    
+                System.out.println();
+            }
+        } else {
+            System.out.println("null");
+        }
 
-        //     System.out.println();
-        // }
+        System.out.println();
 
-        matrix.inverse();
-        // System.out.println(matrix.det());
+        // ----------- FOR INVERSE TESTING
+        Matrix inverse = matrix.inverse();
+
+        System.out.println("------ INVERSE ------");
+        if(inverse != null) {
+            for(int i = 0; i < inverse.getNumRows(); i++) {
+                for(int j = 0; j < inverse.getNumRows(); j++) {
+                    System.out.print(inverse.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
+                }
+    
+                System.out.println();
+            }
+        } else {
+            System.out.println("null");
+        }
+
+        System.out.println();
+
+        System.out.println("------ DETERMINANT ------");
+        // ----------- FOR DETERMINANT TESTING
+        System.out.println(matrix.det());
     }
 }
