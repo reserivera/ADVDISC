@@ -80,10 +80,10 @@ public class Matrix {
                 for(int k = 0; k < other.getNumRows(); k++) {
                     multiplied[i][j] += matrix.get(i).getDataAtIndex(k) * other.getVectorAtIndex(k).getDataAtIndex(j);
                 }
-
-                Vector v = new Vector(multiplied[i], other.getNumCols());
-                tempMatrix.add(v);
             }
+
+            Vector v = new Vector(multiplied[i], other.getNumCols());
+            tempMatrix.add(v);
         }
 
         return new Matrix(tempMatrix, rows);
@@ -117,9 +117,11 @@ public class Matrix {
         // An implementation of a function that finds the inverse of the matrix.
         public Matrix inverse() {
             // // The function must return a null value if the matrix has no inverse.
-            // if(det() == 0.0) {
-            //     return null;
-            // }
+            Matrix temp = new Matrix(matrix, rows);
+
+            if(temp.det() == 0.0) {
+                return null;
+            }
             
             Matrix m = new Matrix(rows);
             List<Vector> vectors = new ArrayList<Vector>(rows);
@@ -129,7 +131,7 @@ public class Matrix {
     
                 for(int j = 0; j < rows * 2; j++) {
                     if(j < rows) {
-                        tempRow[j] = matrix.get(i).getDataAtIndex(j % rows);
+                        tempRow[j] = matrix.get(j % rows).getDataAtIndex(i);
                     } else {
                         tempRow[j] = m.getVectorAtIndex(i).getDataAtIndex(j % rows);
                     }
@@ -137,15 +139,14 @@ public class Matrix {
     
                 vectors.add(new Vector(tempRow, rows));
             }
-    
+
             for(int i = 0; i < rows; i++) {
                 for(int j = 0; j < rows * 2; j++) {
                     System.out.print(vectors.get(i).getDataAtIndex(j) + "\t");
                 }
-    
+
                 System.out.println();
             }
-
             return new Matrix(vectors, rows);
         }
 
@@ -251,6 +252,28 @@ public class Matrix {
         list.add(v2);
         list.add(v3);
         Matrix matrix = new Matrix(list, dim);
+
+
+        // ----------- FOR MULTIPLICATION TESTING
+        // Vector v4 = new Vector(new double[]{2, 0, 0}, dim);
+        // Vector v5 = new Vector(new double[]{0, 2, 0}, dim);
+        // Vector v6 = new Vector(new double[]{0, 0, 2}, dim);
+
+        // List<Vector> list2 = new ArrayList<>(dim);
+        // list2.add(v4);
+        // list2.add(v5);
+        // list2.add(v6);
+        // Matrix matrix2 = new Matrix(list2, dim);
+
+        // Matrix mul = matrix.times(matrix2);
+
+        // for(int i = 0; i < mul.getNumRows(); i++) {
+        //     for(int j = 0; j < mul.getNumCols(); j++) {
+        //         System.out.print(mul.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
+        //     }
+
+        //     System.out.println();
+        // }
 
         matrix.inverse();
         // System.out.println(matrix.det());
