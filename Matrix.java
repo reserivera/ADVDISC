@@ -196,7 +196,7 @@ public class Matrix {
                     determinant = -1 * determinant;
 				}
 
-				Vector base = new Vector(matrix.get(max));
+				Vector base = new Vector(matrix.get(startingRow));
 				for(int row = startingRow+1; row < matrix.size(); row++) {
 					if(matrix.get(row).getDataAtIndex(col) != 0) {
 						double factor = -1 * matrix.get(row).getDataAtIndex(col);
