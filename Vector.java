@@ -53,29 +53,29 @@ public class Vector {
 	}
 
 	public static Vector Gauss_Jordan(List<Vector> vectors, int dimension, Vector constants) {
-		List<Vector> transposedMatrix = Vector.transpose(vectors, dimension);
 
-		if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
-			return null;
-		
-		Vector.rowEchelon(transposedMatrix, vectors.size(), constants);
-		Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
-		
-		ArrayList<Double> zero = new ArrayList<>();
-		
-		for(int i=0; i<vectors.get(0).getSize(); i++)
-			zero.add(0.0);
-		
-	
-		for (int i=0; i<transposedMatrix.size(); i++) {
-			if (zero.equals(transposedMatrix.get(i).getVector())) {
-				return null;
-			}
-				
-		}
-			
-		return constants;
+		List<Vector> transposedMatrix = Vector.transpose(vectors, dimension);
+	    
+	    
+	    Vector.rowEchelon(transposedMatrix, vectors.size(), constants);
+	    Vector.reducedRowEchelon(transposedMatrix, vectors.size(), constants);
+	    
+	    //CHECKS IF THERE IS A ROW NA ALL ZERO -> NO SOLUTION
+	    if (transposedMatrix.size() != transposedMatrix.get(0).getSize())
+	      return null;
+	    
+	    vectors.clear(); 
+	    vectors.addAll(transposedMatrix);
+	    
+	    
+	    for(int i=0; i<vectors.size(); i++)
+	      if(vectors.get(i).getDataAtIndex(i) == 0) 
+	        return null;
+	    
+	    return constants;
 	}
+	
+	
 
 	public static void rowEchelon(List<Vector> vectors, int dimension, Vector constants){
 		int startingRow = 0;
@@ -96,15 +96,16 @@ public class Vector {
 					constants.setValue(startingRow, temp);
 				}
 
-				Vector base = new Vector(vectors.get(max));
+				Vector base = new Vector(vectors.get(startingRow));
 				for(int row = startingRow+1; row < vectors.size(); row++) {
 					if(vectors.get(row).getDataAtIndex(col) != 0) {
-						double factor = -1 * vectors.get(row).getDataAtIndex(col);
+						double gcd = gcd(Math.abs(vectors.get(row).getDataAtIndex(col)), Math.abs(base.getDataAtIndex(col)));
+						double factor = -1 * (vectors.get(row).getDataAtIndex(col)/gcd);
 
-						double first = constants.getDataAtIndex(row)*base.getDataAtIndex(col),
+						double first = constants.getDataAtIndex(row)*(base.getDataAtIndex(col)/gcd),
 							   second = constants.getDataAtIndex(startingRow)*factor;
 
-						vectors.get(row).scale(base.getDataAtIndex(col)).add(base.scale(factor));
+						vectors.get(row).scale(base.getDataAtIndex(col)/gcd).add(base.scale(factor));
 					
 						base.scale(1/factor);
 						constants.setValue(row,first+second);
@@ -118,6 +119,16 @@ public class Vector {
 
 		}
 	}
+
+	static double gcd(double a, double b)
+	{
+		while (b > 0) {
+      double temp = b;
+      b = a % b; 
+      a = temp;
+    }
+    return a;
+}
 
 	public static void reducedRowEchelon(List<Vector> vectors, int dimension, Vector constants){
 		for(int i = vectors.size() - 1; i >= 0 ; i--) {
@@ -211,6 +222,5 @@ public class Vector {
 	
 	static int min(int a, int b) { 
 		return a < b ? a : b; 
-
 	}
 }
