@@ -13,8 +13,8 @@ public class Matrix {
 
     // The usage of immutable Integer variables to hold values for 
     // the number of rows/columns.
-    private int rows;
-    private int columns;
+    private final int rows;
+    private final int columns;
 
     // A proper implementation of a default constructor that initializes 
     // the matrix as an identity matrix of a given dimension.
@@ -43,10 +43,9 @@ public class Matrix {
     // already-existing array/list of data from a rudimentary data 
     // structure into the vector class.
     public Matrix (List<Vector> list, int dimension) {
-        columns = dimension;
-        rows = list.size();
-        matrix = list;
-        this.transpose();
+        columns = list.size();
+        rows = dimension;
+        matrix = Vector.transpose(list, dimension);
     }
 
     public Matrix(Matrix m) {
@@ -82,10 +81,9 @@ public class Matrix {
             tempMatrix.add(v);
         }
 
-        Matrix times = new Matrix(tempMatrix, rows);
-        times.transpose();
+        tempMatrix = Vector.transpose(tempMatrix, other.getNumCols());
 
-        return times;
+        return new Matrix(tempMatrix, rows);
     }
 
     // An implementation of a function that performs Gauss-Jordan 
@@ -116,12 +114,13 @@ public class Matrix {
 
         // An implementation of a function that finds the inverse of the matrix.
     public Matrix inverse() {
-        Matrix temp = this;
+        // // The function must return a null value if the matrix has no inverse.
+        
 
-        if(temp.det() == 0.0) {
+        if(det() == 0.0) {
             return null;
         }
-
+        
         Matrix m = new Matrix(rows);
         List<Vector> vectors = new ArrayList<Vector>(rows);
 
@@ -139,9 +138,9 @@ public class Matrix {
             vectors.add(new Vector(tempRow, rows));
         }
 
-        Matrix reduceInverse = new Matrix(vectors, rows * 2);
-        reduceInverse.transpose();
+        vectors = Vector.transpose(vectors, rows * 2);
 
+        Matrix reduceInverse = new Matrix(vectors, rows);
         double det = reduceInverse.rowEchelon(reduceInverse.getNumRows(), 1);
         reduceInverse.reducedRowEchelon(reduceInverse.getNumRows(), det);
 
@@ -158,11 +157,14 @@ public class Matrix {
 
             vectors2.add(new Vector(tempRow, rows));
         }
-        
-        Matrix inverse = new Matrix(vectors2, rows);
-        inverse.transpose();
 
-        return inverse;
+        vectors2 = Vector.transpose(vectors2, rows);
+
+        return new Matrix(vectors2, rows);
+    }
+
+    public Matrix transpose() {
+        return new Matrix(matrix, columns);
     }
 
     public int getNumRows() {
@@ -249,27 +251,6 @@ public class Matrix {
         }
 
         return determinant;
-    }
-    
-    public void transpose() {
-		double[][] transposedDigits = new double[columns][rows];
-		List<Vector> transposedMatrix = new ArrayList<Vector>(columns);
-
-		for(int i = 0; i < columns; i++) {
-			for(int j = 0; j < rows; j++) {
-				transposedDigits[i][j] = matrix.get(j).getDataAtIndex(i);
-			}
-		}
-
-		for(int i = 0; i < columns; i++) {
-			Vector v = new Vector(transposedDigits[i], rows);
-			transposedMatrix.add(v);
-        }
-        
-        matrix = transposedMatrix;
-        int temp = rows;
-        rows = columns;
-        columns = temp;
 	}
 
     // For testing
@@ -285,8 +266,6 @@ public class Matrix {
         // list.add(v2);
         // list.add(v3);
         // Matrix matrix = new Matrix(list, dim);
-        // Vector v = new Vector(new double[]{1, 1, 1}, dim);
-        // Vector v2 = new Vector(new double[]{2, 2, 2}, dim);
         Vector v = new Vector(new double[]{4,1,2}, dim);
         Vector v2 = new Vector(new double[]{6,5,7}, dim);
         Vector v3 = new Vector(new double[]{2,4,3}, dim);
@@ -299,15 +278,15 @@ public class Matrix {
 
 
         // ----------- FOR MULTIPLICATION TESTING
-        Vector v4 = new Vector(new double[]{1, 0, 0}, dim);
-        Vector v5 = new Vector(new double[]{0, 2, 0}, dim);
+        Vector v4 = new Vector(new double[]{1, 0, 0}, 3);
+        Vector v5 = new Vector(new double[]{0, 2, 0}, 3);
         Vector v6 = new Vector(new double[]{0, 0, 2}, dim);
 
-        List<Vector> list2 = new ArrayList<>(2);
+        List<Vector> list2 = new ArrayList<>(3);
         list2.add(v4);
         list2.add(v5);
        list2.add(v6);
-        Matrix matrix2 = new Matrix(list2, dim);
+        Matrix matrix2 = new Matrix(list2, 3);
 
         Matrix mul = matrix.times(matrix2);
 
@@ -347,5 +326,18 @@ public class Matrix {
         System.out.println("------ DETERMINANT ------");
         // ----------- FOR DETERMINANT TESTING
         System.out.println(matrix.det());
+
+        System.out.println();
+
+        System.out.println("------ TRANSPOSE ------");
+        // ----------- FOR TRANSPOSE TESTING
+        Matrix transpose = matrix.transpose();
+        for(int i = 0; i < transpose.getNumRows(); i++) {
+            for(int j = 0; j < transpose.getNumRows(); j++) {
+                System.out.print(transpose.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
+            }
+
+            System.out.println();
+        }
     }
 }
