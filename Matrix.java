@@ -88,9 +88,9 @@ public class Matrix {
 
     // An implementation of a function that performs Gauss-Jordan 
     // Elimination to find the determinant of the matrix.
-    public double det () {
+    public Double det () {
         if(rows != columns) {
-            return 0.0;
+            return null;
         }
 
         Matrix m = new Matrix(this);
@@ -117,7 +117,7 @@ public class Matrix {
         // // The function must return a null value if the matrix has no inverse.
         
 
-        if(det() == 0.0) {
+        if(det() == null ||det() == 0.0) {
             return null;
         }
         
@@ -266,15 +266,15 @@ public class Matrix {
         // list.add(v2);
         // list.add(v3);
         // Matrix matrix = new Matrix(list, dim);
-        Vector v = new Vector(new double[]{4,1,2}, dim);
-        Vector v2 = new Vector(new double[]{6,5,7}, dim);
-        Vector v3 = new Vector(new double[]{2,4,3}, dim);
+        Vector v = new Vector(new double[]{4,1}, 2);
+        Vector v2 = new Vector(new double[]{6,5}, 2);
+        Vector v3 = new Vector(new double[]{2,4}, 2);
   
         List<Vector> list = new ArrayList<>(dim);
         list.add(v);
         list.add(v2);
         list.add(v3);
-        Matrix matrix = new Matrix(list, dim);
+        Matrix matrix = new Matrix(list, 2);
 
 
         // ----------- FOR MULTIPLICATION TESTING
@@ -333,7 +333,7 @@ public class Matrix {
         // ----------- FOR TRANSPOSE TESTING
         Matrix transpose = matrix.transpose();
         for(int i = 0; i < transpose.getNumRows(); i++) {
-            for(int j = 0; j < transpose.getNumRows(); j++) {
+            for(int j = 0; j < transpose.getNumCols(); j++) {
                 System.out.print(transpose.getVectorAtIndex(i).getDataAtIndex(j) + "\t");
             }
 
