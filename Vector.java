@@ -1,6 +1,7 @@
 /**
  * @author BATOSALEM, Angelika && CORTEZ, Louise && RIVERA, Sophia
  * @section S17
+ * @version 2.0
  */
 
 import java.util.ArrayList;
